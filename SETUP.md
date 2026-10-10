@@ -38,6 +38,7 @@ The example file leaves provider URLs and keys blank so the app can build and st
 - `APP_URL` (recommended): the app's origin, defaulting to `http://localhost:3000`. <!-- clubedge:only framework=tanstack-start -->
 - `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (for sign-in): see [Supabase Auth](#supabase-auth). <!-- clubedge:only framework=next && auth=supabase -->
 - `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (for sign-in): see [Supabase Auth](#supabase-auth). <!-- clubedge:only framework=tanstack-start && auth=supabase -->
+- `BETTER_AUTH_SECRET` (for sign-in): see [Better Auth](#better-auth). <!-- clubedge:only auth=better-auth -->
 - `REDIS_URL` (optional): see [Redis](#redis). <!-- clubedge:only cache=redis -->
 - `STORAGE_*` (for file storage): see [File storage](#file-storage). <!-- clubedge:only storage=s3 -->
 - `SUPABASE_STORAGE_BUCKET` (for file storage): see [File storage](#file-storage). <!-- clubedge:only storage=supabase -->
@@ -68,6 +69,20 @@ For deployed environments, add your deployed origin followed by `/auth/callback`
 
 <!-- clubedge:end -->
 
+<!-- clubedge:if auth=better-auth -->
+
+## Better Auth
+
+Better Auth keeps users, passwords, and sessions in your PostgreSQL database, in its own `auth_*` tables with a separate migration history (`packages/auth-better-auth/drizzle`). Set `DATABASE_URL` and apply the migrations (see [Set up the database](#set-up-the-database)), then set a secret of at least 32 random characters:
+
+```sh
+openssl rand -base64 32
+```
+
+Put the result in `BETTER_AUTH_SECRET`. Until it is set, the dashboard stays viewable as a demo and the login page explains what is missing; once it is set, the dashboard redirects signed-out visitors to the login page. Sign-up signs the user in immediately; add email verification in `packages/auth-better-auth` if your application needs it. Signing in again on another device creates another session row, and signing out deletes it.
+
+<!-- clubedge:end -->
+
 ## Set up the database
 
 Application tables are managed with Drizzle. Keep one migration source of truth for application tables: do not also create an independent Supabase migration history for those same tables.
@@ -80,7 +95,10 @@ pnpm db:generate
 pnpm db:migrate
 ```
 
-`db:generate` creates migration files from `packages/db/src/schema` into `packages/db/drizzle`; review and commit those files. `db:migrate` applies committed migrations. `db:push` is available for local development, but do not use it as a production migration workflow. Use `pnpm db:seed` only against a database where seed data is appropriate. The database commands run in `packages/db` and read `DATABASE_URL` from `apps/web/.env.local`, so the project keeps one environment file. The Postgres.js client is configured with `prepare: false` for compatibility with Supabase transaction pooling.
+`db:generate` creates migration files from `packages/db/src/schema` into `packages/db/drizzle`; review and commit those files. Better Auth's tables have their own schema and migrations in `packages/auth-better-auth`, applied by the same commands. <!-- clubedge:only auth=better-auth -->
+`db:generate` creates migration files from `packages/db/src/schema` into `packages/db/drizzle`; review and commit those files. <!-- clubedge:only auth!=better-auth -->
+
+`db:migrate` applies committed migrations. `db:push` is available for local development, but do not use it as a production migration workflow. Use `pnpm db:seed` only against a database where seed data is appropriate. The database commands run in `packages/db` and read `DATABASE_URL` from `apps/web/.env.local`, so the project keeps one environment file. The Postgres.js client is configured with `prepare: false` for compatibility with Supabase transaction pooling.
 
 <!-- clubedge:if cache=redis -->
 

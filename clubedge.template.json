@@ -37,14 +37,6 @@
             "@clubedge/auth-supabase": "packages/auth-supabase"
           },
           "files": [
-            "apps/web/src/app/actions",
-            "apps/web/src/app/auth",
-            "apps/web/src/app/login",
-            "apps/web/src/env/auth.ts",
-            "apps/web/src/lib/login-url.test.ts",
-            "apps/web/src/lib/login-url.ts",
-            "apps/web/src/proxy.ts",
-            "apps/web/src/server/users.ts",
             "apps/start/src/components/auth",
             "apps/start/src/env/auth.test.ts",
             "apps/start/src/env/auth.ts",
@@ -57,8 +49,53 @@
             "apps/start/src/server/cookies.test.ts",
             "apps/start/src/server/cookies.ts",
             "apps/start/src/server/users.ts",
+            "apps/web/src/app/actions",
+            "apps/web/src/app/auth",
+            "apps/web/src/app/login",
+            "apps/web/src/env/auth.ts",
+            "apps/web/src/lib/login-url.test.ts",
+            "apps/web/src/lib/login-url.ts",
+            "apps/web/src/proxy.ts",
+            "apps/web/src/server/cookies.ts",
+            "apps/web/src/server/users.ts",
+            "e2e/auth-flow.spec.ts",
             "e2e/auth.spec.ts"
           ]
+        },
+        "better-auth": {
+          "name": "Better Auth",
+          "packages": {
+            "@clubedge/auth": "packages/auth",
+            "@clubedge/auth-better-auth": "packages/auth-better-auth"
+          },
+          "files": [
+            "apps/start/src/components/auth",
+            "apps/start/src/env/auth.ts",
+            "apps/start/src/lib/login-url.test.ts",
+            "apps/start/src/lib/login-url.ts",
+            "apps/start/src/routes/auth",
+            "apps/start/src/routes/login.tsx",
+            "apps/start/src/server/auth-forms.test.ts",
+            "apps/start/src/server/auth-forms.ts",
+            "apps/start/src/server/cookies.test.ts",
+            "apps/start/src/server/cookies.ts",
+            "apps/start/src/server/users.ts",
+            "apps/web/src/app/actions",
+            "apps/web/src/app/auth",
+            "apps/web/src/app/login",
+            "apps/web/src/env/auth.ts",
+            "apps/web/src/lib/login-url.test.ts",
+            "apps/web/src/lib/login-url.ts",
+            "apps/web/src/server/cookies.ts",
+            "apps/web/src/server/users.ts",
+            "e2e/auth-flow.spec.ts",
+            "e2e/auth.spec.ts"
+          ],
+          "replace": {
+            "apps/web/src/server/auth.ts": "apps/web/src/server/variants/auth.better-auth.ts",
+            "apps/web/src/proxy.ts": "apps/web/src/variants/proxy.better-auth.ts",
+            "apps/start/src/server/auth.ts": "apps/start/src/server/variants/auth.better-auth.ts"
+          }
         },
         "none": {
           "name": "None",
@@ -95,9 +132,13 @@
             "apps/web/src/server/storage.ts": "apps/web/src/server/variants/storage.supabase.ts",
             "apps/start/src/server/storage.ts": "apps/start/src/server/variants/storage.supabase.ts"
           },
-          "requires": { "auth": "supabase" }
+          "requires": {
+            "auth": "supabase"
+          }
         },
-        "none": { "name": "None" }
+        "none": {
+          "name": "None"
+        }
       }
     },
     "cache": {
@@ -106,7 +147,9 @@
       "options": {
         "redis": {
           "name": "Redis, or memory without REDIS_URL",
-          "packages": { "@clubedge/cache-redis": "packages/cache-redis" },
+          "packages": {
+            "@clubedge/cache-redis": "packages/cache-redis"
+          },
           "files": ["apps/start/src/server/cache.test.ts"]
         },
         "memory": {
@@ -126,10 +169,12 @@
     "README.md",
     "SETUP.md",
     "apps/start/.env.example",
+    "apps/start/src/env/auth.ts",
     "apps/start/src/routes/dashboard.tsx",
     "apps/start/src/routes/index.tsx",
     "apps/web/src/app/dashboard/page.tsx",
-    "apps/web/src/app/page.tsx"
+    "apps/web/src/app/page.tsx",
+    "apps/web/src/env/auth.ts"
   ],
   "exclude": [
     ".github/workflows/starter.yml",
