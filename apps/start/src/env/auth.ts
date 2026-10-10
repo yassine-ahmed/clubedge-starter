@@ -1,7 +1,12 @@
 import { z } from "zod";
 import { optional, parseEnv } from "./server";
+// clubedge:if auth=better-auth
+import { getAppUrl } from "./server";
+// clubedge:end
 
 // All auth runs on the server, so these variables need no browser prefix.
+
+// clubedge:if auth=supabase
 const supabaseAuthSchema = z.object({
   SUPABASE_URL: optional(z.url()),
   SUPABASE_PUBLISHABLE_KEY: optional(z.string()),
@@ -19,3 +24,23 @@ export function getSupabaseAuthEnv(): SupabaseAuthEnv | null {
   const publishableKey = env.SUPABASE_PUBLISHABLE_KEY;
   return url && publishableKey ? { url, publishableKey } : null;
 }
+// clubedge:end
+
+// clubedge:if auth=better-auth
+const betterAuthSchema = z.object({
+  BETTER_AUTH_SECRET: optional(
+    z.string().min(32, "BETTER_AUTH_SECRET needs at least 32 characters"),
+  ),
+});
+
+export interface BetterAuthEnv {
+  secret: string;
+  baseUrl: string;
+}
+
+/** Better Auth settings, or null until BETTER_AUTH_SECRET is set. */
+export function getBetterAuthEnv(): BetterAuthEnv | null {
+  const env = parseEnv(betterAuthSchema, "Better Auth");
+  return env.BETTER_AUTH_SECRET ? { secret: env.BETTER_AUTH_SECRET, baseUrl: getAppUrl() } : null;
+}
+// clubedge:end

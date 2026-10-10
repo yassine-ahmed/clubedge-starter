@@ -1,33 +1,39 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
-import type { AuthProvider, AuthUser, CookieStore } from "@clubedge/auth";
-import { createSupabaseAuth, createSupabaseServerClient } from "@clubedge/auth-supabase";
+import type { AuthProvider, AuthUser } from "@clubedge/auth";
+import {
+  createBetterAuth,
+  createBetterAuthServer,
+  drizzleDatabase,
+  type BetterAuthServer,
+} from "@clubedge/auth-better-auth";
 import { AppError } from "@clubedge/core";
-import { getSupabaseAuthEnv } from "@/env/auth";
+import { getBetterAuthEnv } from "@/env/auth";
 import { loginUrl } from "@/lib/login-url";
 import { nextCookieStore } from "@/server/cookies";
+import { getDb } from "@/server/db";
 
 export type { AuthUser } from "@clubedge/auth";
 
 export function isAuthConfigured(): boolean {
-  return getSupabaseAuthEnv() !== null;
+  return getBetterAuthEnv() !== null;
 }
 
-function supabaseConfig(cookieStore: CookieStore) {
-  const env = getSupabaseAuthEnv();
-  if (!env) throw new Error("Supabase Auth is not configured.");
-  return { ...env, cookies: cookieStore };
+let server: BetterAuthServer | undefined;
+
+/** One Better Auth server per process, storing users and sessions in the app database. */
+function getServer(): BetterAuthServer {
+  if (server) return server;
+  const env = getBetterAuthEnv();
+  if (!env) throw new Error("Better Auth is not configured.");
+  server = createBetterAuthServer({ database: drizzleDatabase(getDb()), ...env });
+  return server;
 }
 
 /** Request-scoped auth provider. Throws when authentication is not configured. */
 export async function getAuth(): Promise<AuthProvider> {
-  return createSupabaseAuth(supabaseConfig(await nextCookieStore()));
-}
-
-/** Request-scoped Supabase client for provider features such as Storage. */
-export async function getSupabaseClient() {
-  return createSupabaseServerClient(supabaseConfig(await nextCookieStore()));
+  return createBetterAuth({ server: getServer(), cookies: await nextCookieStore() });
 }
 
 export async function getCurrentUser(): Promise<AuthUser | null> {

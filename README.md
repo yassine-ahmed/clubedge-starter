@@ -18,6 +18,7 @@ This repository contains the same application for two frameworks, Next.js (`apps
 - pnpm workspaces and Turborepo, with the web app in `apps/web` and framework-agnostic packages under `packages/`.
 - Drizzle ORM and PostgreSQL schema, migrations, and seed commands.
 - Supabase Auth with server-verified sessions in secure cookies, a protected dashboard, and rate-limited sign-in. <!-- clubedge:only auth=supabase -->
+- Better Auth with users and sessions in your own PostgreSQL, secure session cookies, a protected dashboard, and rate-limited sign-in. <!-- clubedge:only auth=better-auth -->
 - S3-compatible storage adapter for AWS S3, Cloudflare R2, and MinIO. <!-- clubedge:only storage=s3 -->
 - Supabase Storage adapter that uses the signed-in user's session. <!-- clubedge:only storage=supabase -->
 - Fixed-window rate limiter and cache on Redis, falling back to process memory without `REDIS_URL`. <!-- clubedge:only cache=redis -->
@@ -38,6 +39,10 @@ flowchart TB
   App -->|Drizzle ORM| DB[(PostgreSQL)]
   %% clubedge:if auth=supabase
   App -->|auth interface and server sessions| Auth[Supabase Auth]
+  %% clubedge:end
+  %% clubedge:if auth=better-auth
+  App -->|auth interface and server sessions| Auth[Better Auth]
+  Auth -->|users and sessions| DB
   %% clubedge:end
   %% clubedge:if cache=redis
   App -->|cache and rate limits| Redis[(Redis, or memory)]
@@ -111,7 +116,7 @@ Run these from the repository root:
 | `pnpm test:e2e`     | Run Playwright browser checks.                 |
 | `pnpm format`       | Format supported repository files.             |
 | `pnpm format:check` | Check formatting without writing files.        |
-| `pnpm db:generate`  | Generate Drizzle migrations from the schema.   |
+| `pnpm db:generate`  | Generate Drizzle migrations from the schemas.  |
 | `pnpm db:migrate`   | Apply checked-in Drizzle migrations.           |
 | `pnpm db:push`      | Push schema directly (local development only). |
 | `pnpm db:studio`    | Open Drizzle Studio.                           |
@@ -138,6 +143,7 @@ The TanStack Start app is `apps/start`, run with `pnpm --filter @clubedge/start 
 - `packages/db/`: Drizzle schema, client factory, migrations, and seed script
 - `packages/auth/`: `AuthProvider` and `CookieStore` interfaces <!-- clubedge:only auth!=none -->
 - `packages/auth-supabase/`: Supabase Auth adapter <!-- clubedge:only auth=supabase -->
+- `packages/auth-better-auth/`: Better Auth adapter, with its own tables and migrations <!-- clubedge:only auth=better-auth -->
 - `packages/storage/`: `StorageProvider` interface <!-- clubedge:only storage!=none -->
 - `packages/storage-s3/`: S3-compatible storage adapter <!-- clubedge:only storage=s3 -->
 - `packages/storage-supabase/`: Supabase Storage adapter <!-- clubedge:only storage=supabase -->

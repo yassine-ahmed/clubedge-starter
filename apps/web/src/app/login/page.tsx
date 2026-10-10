@@ -96,7 +96,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <CardContent className="grid gap-5 p-6 sm:p-8">
             {!hasAuthConfig && (
               <Notice icon={<Info />} role="status" tone="warning">
-                Authentication is not configured yet. Add your Supabase URL and publishable key to{" "}
+                Authentication is not configured yet. Add your auth provider's settings to{" "}
                 <code className="rounded bg-muted px-1 py-0.5 font-mono text-xs">
                   apps/web/.env.local
                 </code>

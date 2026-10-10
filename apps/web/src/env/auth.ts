@@ -2,6 +2,8 @@ import { z } from "zod";
 import { optional, parseEnv } from "./server";
 
 // Read by the composition root and by the proxy, which cannot import server-only modules.
+
+// clubedge:if auth=supabase
 const supabaseAuthSchema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: optional(z.url()),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optional(z.string()),
@@ -19,3 +21,28 @@ export function getSupabaseAuthEnv(): SupabaseAuthEnv | null {
   const publishableKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   return url && publishableKey ? { url, publishableKey } : null;
 }
+// clubedge:end
+
+// clubedge:if auth=better-auth
+const betterAuthSchema = z.object({
+  BETTER_AUTH_SECRET: optional(
+    z.string().min(32, "BETTER_AUTH_SECRET needs at least 32 characters"),
+  ),
+  NEXT_PUBLIC_APP_URL: optional(z.url()),
+});
+
+export interface BetterAuthEnv {
+  secret: string;
+  baseUrl: string;
+}
+
+/** Better Auth settings, or null until BETTER_AUTH_SECRET is set. */
+export function getBetterAuthEnv(): BetterAuthEnv | null {
+  const env = parseEnv(betterAuthSchema, "Better Auth");
+  if (!env.BETTER_AUTH_SECRET) return null;
+  return {
+    secret: env.BETTER_AUTH_SECRET,
+    baseUrl: env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+  };
+}
+// clubedge:end
