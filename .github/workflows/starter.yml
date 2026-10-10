@@ -186,8 +186,8 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
           pnpm db:migrate
-      - name: Sign up, out, and in
+      - name: Sign up, out, and in (the other browser checks expect no provider)
         working-directory: ${{ runner.temp }}/generated-app
         run: |
           pnpm exec playwright install --with-deps chromium
-          pnpm test:e2e
+          pnpm test:e2e e2e/auth-flow.spec.ts
